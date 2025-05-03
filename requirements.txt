@@ -1,0 +1,9 @@
+flask~=3.1.0
+imageio
+imageio-ffmpeg
+torch
+opencv-python
+ultralytics
+pandas~=2.2.3
+werkzeug~=3.1.3
+openpyxl

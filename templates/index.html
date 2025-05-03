@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Счётчик багажа</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 12px 30px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #357ab8;
+        }
+        .result, .video, .history {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .result {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        video {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        a.download-link {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #4a90e2;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #4a90e2;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="overlay" id="loader">
+    <div class="spinner"></div>
+</div>
+
+<div class="container">
+    <h1>Счётчик багажа</h1>
+    <form method="POST" action="/upload" enctype="multipart/form-data" onsubmit="showLoader()">
+        <input type="file" name="video" accept="video/*" required>
+        <button type="submit">Запустить обработку</button>
+    </form>
+
+    {% if result %}
+    <div class="result">
+        <p>{{ result }}</p>
+    </div>
+    {% endif %}
+
+    {% if video_path %}
+    <div class="video">
+        <video controls>
+            <source src="{{ video_path }}" type="video/mp4">
+            Ваш браузер не поддерживает воспроизведение видео.
+        </video>
+        <br>
+        <a class="download-link" href="{{ video_path }}" download>Скачать видео</a>
+    </div>
+    {% endif %}
+    {% if history %}
+        <div class="history">
+            <h2>История обработок</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Имя файла</th>
+                        <th>Количество объектов</th>
+                        <th>Ссылка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for entry in history %}
+                    <tr>
+                        <td>{{ entry.timestamp }}</td>
+                        <td>{{ entry.filename }}</td>
+                        <td>{{ entry.count }}</td>
+                        <td><a href="{{ entry.video_url }}" target="_blank">Открыть</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a class="download-link" href="/download-history">Скачать историю (Excel)</a>
+        </div>
+        {% endif %}
+    </div>
+
+<script>
+    function showLoader() {
+        document.getElementById('loader').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
